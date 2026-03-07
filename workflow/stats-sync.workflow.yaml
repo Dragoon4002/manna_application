@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "stats-sync-staging"
+  workflow-artifacts:
+    workflow-path: "./stats-sync.ts"
+    config-path: "./stats-sync.config.staging.json"

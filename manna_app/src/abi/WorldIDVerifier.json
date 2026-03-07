@@ -1,0 +1,62 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getVerification",
+    "inputs": [{ "name": "nullifierHash", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct WorldIDVerifier.Verification",
+        "components": [
+          { "name": "verified", "type": "bool", "internalType": "bool" },
+          { "name": "level", "type": "uint8", "internalType": "uint8" },
+          { "name": "timestamp", "type": "uint256", "internalType": "uint256" }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isVerifiedHuman",
+    "inputs": [{ "name": "nullifierHash", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "registerHuman",
+    "inputs": [
+      { "name": "nullifierHash", "type": "uint256", "internalType": "uint256" },
+      { "name": "verificationLevel", "type": "uint8", "internalType": "uint8" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "HumanVerified",
+    "inputs": [
+      { "name": "nullifierHash", "type": "uint256", "indexed": true, "internalType": "uint256" },
+      { "name": "verificationLevel", "type": "uint8", "indexed": false, "internalType": "uint8" },
+      { "name": "timestamp", "type": "uint256", "indexed": false, "internalType": "uint256" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyVerified",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotOperator",
+    "inputs": []
+  }
+]

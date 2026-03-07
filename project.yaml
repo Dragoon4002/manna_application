@@ -1,0 +1,4 @@
+staging-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia-arbitrum-1
+      url: https://virtual.arbitrum-sepolia.eu.rpc.tenderly.co/68be5ea4-19b3-42c2-b86e-2446ab603b4a

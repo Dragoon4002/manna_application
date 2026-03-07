@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "token-deploy-staging"
+  workflow-artifacts:
+    workflow-path: "./token-deploy.ts"
+    config-path: "./token-deploy.config.staging.json"

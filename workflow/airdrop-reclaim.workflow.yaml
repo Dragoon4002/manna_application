@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "airdrop-reclaim-staging"
+  workflow-artifacts:
+    workflow-path: "./airdrop-reclaim.ts"
+    config-path: "./airdrop-reclaim.config.staging.json"

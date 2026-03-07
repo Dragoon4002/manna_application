@@ -1,0 +1,20 @@
+@import '../../node_modules/@worldcoin/mini-apps-ui-kit-react/dist/globals.css' layer(ui-kit);
+@import 'tailwindcss';
+
+:root {
+  --w-blue: 63 219 237;
+  --w-success: 0 194 48;
+}
+
+@theme inline {
+  --color-w-blue: rgb(var(--w-blue));
+  --color-w-success: rgb(var(--w-success));
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: theme('colors.gray.900');
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}

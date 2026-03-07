@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "airdrop-create-staging"
+  workflow-artifacts:
+    workflow-path: "./airdrop-create.ts"
+    config-path: "./airdrop-create.config.staging.json"

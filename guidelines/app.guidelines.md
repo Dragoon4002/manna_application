@@ -1,0 +1,183 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.world.org/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# App Guidelines
+
+## Mobile First
+
+Mini apps are inherently accessed via mobile, so your application UI should look and feel like a mobile app.
+
+### Key considerations for a mobile-first experience:
+
+* Use tab navigation to simplify movement within the app.
+* Implement snap-to text boxes for easy user input.
+* Avoid footers, sidebars, and excessive scrolling.
+* Provide clear and direct navigation without hamburger menus.
+* Ensure smooth transitions between different screens or sections.
+* Use consistent background colors for a cohesive visual experience.
+* Provide clear navigation cues to help users understand where they are and how to proceed.
+* Ensure all UI elements are responsive and adapt well to different screen sizes.
+* Use fonts that are optimized for readability on mobile devices.
+* Include a splash page for sign-in if needed.
+
+<div className="grid grid-cols-2">
+  <div className="grid justify-items-center text-center">
+    <video className="m-auto" width="300" autoPlay muted loop playsInline>
+      <source src="https://mintcdn.com/tfh/QgV5KXRTJlR7G1Sc/images/docs/mini-apps/guidelines/bad-compressed.mp4?fit=max&auto=format&n=QgV5KXRTJlR7G1Sc&q=85&s=7f75177201cbc9b01c0b3c2c13d3a01d" type="video/mp4" data-path="images/docs/mini-apps/guidelines/bad-compressed.mp4" />
+
+      Your browser does not support the video tag.
+    </video>
+
+    ❌ Bad Example <br /> Footer and long scrolling
+  </div>
+
+  <div className="grid justify-items-center text-center">
+    <video className="m-auto" width="300" autoPlay muted loop playsInline>
+      <source src="https://mintcdn.com/tfh/QgV5KXRTJlR7G1Sc/images/docs/mini-apps/guidelines/good-compressed.mp4?fit=max&auto=format&n=QgV5KXRTJlR7G1Sc&q=85&s=68a720b38de70fad972a2176c9078dd3" type="video/mp4" data-path="images/docs/mini-apps/guidelines/good-compressed.mp4" />
+
+      Your browser does not support the video tag.
+    </video>
+
+    ✅ Good Example <br /> Bottom tab navigation and anchored buttons
+  </div>
+</div>
+
+## Scroll Bounce on IOS.
+
+We recommend you avoid scroll bounce error on iOS devices. Try disabling autoscroll & maybe fixed position elements or using 100dvh instead of 100vh.
+
+If you are not using a bottom navigation bar, you can use the following CSS to disable the scroll bounce error:
+
+```css  theme={null}
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+```
+
+Alternatively, you can try this approach which allows scrolling while still preventing the bounce effect:
+
+```css  theme={null}
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  overflow: scroll;
+}
+```
+
+## Design Patterns
+
+Here are some design patterns that we recommend you follow:
+
+1. When a user is authenticated through their wallet, always show their username instead of the wallet address
+2. Use the "Verify" command to confirm important actions or identity verification.
+3. When dealing with wallet addresses, use an address book to link them to recognizable usernames or other identifiers
+
+## App Icon
+
+Your app icon should be a **square** image with a non white background.
+
+## Content Card
+
+Follow these guidelines when preparing the content card image:
+
+* Content card size is 345x240 px.
+* Avoid adding text inside content card images as much as possible.
+* Keep the bottom 94 px free of important details; this area is overlaid in app.
+* The text and icon on the card are rendered from your app description and app icon automatically—no need to add them to the image.
+* Export the banner without metadata, and include the blurred foreground element covering the bottom 94 px.
+* Export without border radius, as PNG at 3x scale.
+
+<div className="grid justify-items-center text-center">
+  <img className="m-auto" width="345" height="240" src="https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=31062138d78248762e965484960b63a0" alt="Good content card example" data-og-width="1410" data-og-height="981" data-path="images/docs/mini-apps/guidelines/content-card-image.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=280&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=317a3b47d9958798adc70d12fe384435 280w, https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=560&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=92551bac7a7ba6fb56d07681a72cd6ab 560w, https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=840&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=134ff20e48963f6252baa552f35e0a6f 840w, https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=1100&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=6c5a646e99ddfb4e52025b9150193acd 1100w, https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=1650&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=b3e2554d210e47bc24ff2318ef698db2 1650w, https://mintcdn.com/tfh/RJ58iI-rwNtaDKCG/images/docs/mini-apps/guidelines/content-card-image.png?w=2500&fit=max&auto=format&n=RJ58iI-rwNtaDKCG&q=85&s=824c3c13e868c2e1f7ef6a7087a7ffb3 2500w" />
+
+  ✅ Good Example <br />
+
+  <br />
+</div>
+
+## Load times
+
+For mini apps, 2-3 seconds max for initial load and under 1 second for subsequent actions should be your target.
+However, always test for real-world scenarios and provide visual feedback during loading to maintain user trust.
+
+## Branding & Identity
+
+Do not use the term "official" in your app name, description, or interface. Mini apps are third-party applications and should not create the impression that they are officially endorsed by or affiliated with World.
+Mini apps should maintain their own distinct brand identity while integrating with the World ecosystem
+
+Additionally, do not use the **World logo** or any modified version of it in your app.
+
+## Chance based
+
+We recommend developers to avoid building chance based games, as these games have a very low likelihood of being approved.
+
+**Chance based** = prize awarded based on chance, not skill. This means you are using a RNG to determine a winner.
+You can still have prizes but they need to be awarded based on skill. Not randomness. So winning a game where I get a prize is skill based.
+
+## Memberships & Yield
+
+Selling memberships or subscriptions that grant users access to increased yield, higher returns, or enhanced earning rates is strictly prohibited. Apps must not offer paid access to features or tiers that boost financial returns.
+
+## No Token Pre-sales
+
+Token pre-sales are strictly prohibited. Mini Apps must not offer, promote, or facilitate token pre-sales in any form.
+
+## NFTs on iOS
+
+Mini Apps may allow users to view their own NFTs, provided that NFT ownership does not unlock features or functionality within the app.
+Mini Apps may allow users to browse NFT collections owned by others, provided that the mini apps may not include buttons, external links, or other calls to action that direct customers to purchasing mechanisms other than in-app purchase.
+
+## Localization
+
+Many of our users are located around the world. Apps that are localised for each region will perform significantly better.
+You can recognize the user's locale by using the [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header
+
+For next.js apps, you can use [Next.js Internationalization](https://nextjs.org/docs/app/building-your-application/routing/internationalization) to localize your app.
+
+These languages are particularly important given our users:
+
+1. English
+2. Spanish
+3. Thai
+4. Japanese
+5. Korean
+6. Portuguese
+
+## Usernames
+
+You should never display the user's wallet address, always use their username.
+If you use Sign in with World ID you should not be doing any transactions with the user's wallet address, instead you should be using the username.
+Sign in with World ID and Verify offer the same World ID guarantees, but Verify is more reliable.
+
+## Using the Address Book
+
+World ID inherently allows anonymity between applications. We generally encourage
+developers to use their own Verify Command and verify the proof. However, we also offer a World ID
+address book. This contract stores a mapping `addressVerifiedUntil` you can query to see if a World App
+address is World ID Orb verified.
+
+## UI Kit
+
+The Mini Apps UI Kit is a React-based design system for accelerating the development of mini apps. It provides pre-built, reusable UI components that align with World's design guidelines for consistency and high-quality UX.
+
+### Get Started
+
+Install the UI Kit via NPM:
+
+```bash  theme={null}
+npm install @worldcoin/mini-apps-ui-kit-react
+```
+
+Learn more in the package README and Storybook:
+
+* [Package README](https://www.npmjs.com/package/@worldcoin/mini-apps-ui-kit-react?activeTab=readme)
+  href="[https://www.npmjs.com/package/@worldcoin/mini-apps-ui-kit-react?activeTab=readme](https://www.npmjs.com/package/@worldcoin/mini-apps-ui-kit-react?activeTab=readme)"
+  target="\_blank"
+  > Package README
+* [UI Kit Storybook](https://mini-apps-ui-kit.world.org)

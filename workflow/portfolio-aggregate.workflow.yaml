@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "portfolio-aggregate-staging"
+  workflow-artifacts:
+    workflow-path: "./portfolio-aggregate.ts"
+    config-path: "./portfolio-aggregate.config.staging.json"

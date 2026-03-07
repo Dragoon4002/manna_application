@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "token-mint-staging"
+  workflow-artifacts:
+    workflow-path: "./token-mint.ts"
+    config-path: "./token-mint.config.staging.json"

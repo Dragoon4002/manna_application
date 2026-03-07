@@ -1,0 +1,6 @@
+staging-settings:
+  user-workflow:
+    workflow-name: "fair-launch-finalize-staging"
+  workflow-artifacts:
+    workflow-path: "./fair-launch-finalize.ts"
+    config-path: "./fair-launch-finalize.config.staging.json"
