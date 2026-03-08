@@ -153,6 +153,25 @@
     "anonymous": false
   },
   {
+    "type": "function",
+    "name": "isEligible",
+    "inputs": [
+      { "name": "airdropId", "type": "uint256", "internalType": "uint256" },
+      { "name": "nullifierHash", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdraw",
+    "inputs": [
+      { "name": "airdropId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "error",
     "name": "AirdropExpired",
     "inputs": []

@@ -1,21 +1,14 @@
 import Link from 'next/link';
 import type { ComponentType } from 'react';
 
-type NavCardVariant = 'dark' | 'glass';
-
 interface NavCardProps {
   href: string;
   icon: ComponentType<{ width: number; height: number; className?: string }>;
   label: string;
   description?: string;
   isNew?: boolean;
-  variant?: NavCardVariant;
+  variant?: string;
 }
-
-const variantStyles: Record<NavCardVariant, string> = {
-  dark: 'bg-gradient-to-b from-white/5 to-black/20 ',
-  glass: 'bg-white/10 backdrop-blur-xl border border-white/15',
-};
 
 export default function NavCard({
   href,
@@ -23,14 +16,13 @@ export default function NavCard({
   label,
   description,
   isNew,
-  variant = 'dark',
 }: NavCardProps) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${variantStyles[variant]}`}
+      className="flex items-center gap-4 p-4 rounded-xl glass-card transition-colors hover:bg-white/10"
     >
-      <Icon width={28} height={28} className="text-white mx-2" />
+      <Icon width={28} height={28} className="text-gray-300 mx-2" />
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium text-white">{label}</p>

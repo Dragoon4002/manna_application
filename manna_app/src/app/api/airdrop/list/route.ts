@@ -30,7 +30,7 @@ export async function GET() {
       };
 
       if (!airdrop.active) continue;
-      if (Number(airdrop.expiry) * 1000 < Date.now()) continue;
+      if (Number(airdrop.expiry) < Math.floor(Date.now() / 1000)) continue;
 
       airdrops.push({
         id: i,

@@ -8,58 +8,117 @@ import {HumanDropToken} from "../src/HumanDropToken.sol";
 import {StakingVault} from "../src/StakingVault.sol";
 import {BatchPayout} from "../src/BatchPayout.sol";
 import {VestingVault} from "../src/VestingVault.sol";
+import {FairLaunch} from "../src/FairLaunch.sol";
+import {TokenFactory} from "../src/TokenFactory.sol";
+import {MannaIndex} from "../src/MannaIndex.sol";
+
+/// @notice Deploys all 9 contracts + setup in a single constructor call (1 tx)
+contract BatchDeployer {
+    address public token;
+    address public verifier;
+    address public humanDrop;
+    address public stakingVault;
+    address public batchPayout;
+    address public vestingVault;
+    address public fairLaunch;
+    address public tokenFactory;
+    address public mannaIndex;
+
+    constructor(address creOperator, address finalOwner) {
+        // 1. Token — mints to this contract, we transfer later
+        HumanDropToken t = new HumanDropToken(1_000_000e18);
+        token = address(t);
+
+        // 2. WorldIDVerifier
+        WorldIDVerifier v = new WorldIDVerifier();
+        v.setOperator(creOperator, true);
+        v.transferOwnership(finalOwner);
+        verifier = address(v);
+
+        // 3. HumanDrop + initial airdrop
+        HumanDrop d = new HumanDrop();
+        d.setOperator(creOperator, true);
+        d.createAirdrop(address(t), 100e18, 50e18, 1000, block.timestamp + 30 days);
+        d.transferOwnership(finalOwner);
+        humanDrop = address(d);
+
+        // Fund HumanDrop
+        t.transfer(address(d), 300_000e18);
+
+        // 4. StakingVault (12.5% APY)
+        StakingVault s = new StakingVault(address(t), 1250);
+        s.transferOwnership(finalOwner);
+        stakingVault = address(s);
+
+        // Fund StakingVault reward pool
+        t.transfer(address(s), 200_000e18);
+
+        // 5. BatchPayout
+        BatchPayout bp = new BatchPayout();
+        bp.transferOwnership(finalOwner);
+        batchPayout = address(bp);
+
+        // 6. VestingVault
+        VestingVault vv = new VestingVault();
+        vv.transferOwnership(finalOwner);
+        vestingVault = address(vv);
+
+        // 7. FairLaunch
+        FairLaunch fl = new FairLaunch();
+        fl.setOperator(creOperator, true);
+        fl.transferOwnership(finalOwner);
+        fairLaunch = address(fl);
+
+        // 8. TokenFactory
+        TokenFactory tf = new TokenFactory();
+        tf.setOperator(creOperator, true);
+        tf.transferOwnership(finalOwner);
+        tokenFactory = address(tf);
+
+        // 9. MannaIndex
+        MannaIndex mi = new MannaIndex();
+        mi.setOperator(creOperator, true);
+        mi.transferOwnership(finalOwner);
+        mannaIndex = address(mi);
+
+        // Send remaining tokens to final owner
+        t.transfer(finalOwner, t.balanceOf(address(this)));
+    }
+}
 
 contract DeployAll is Script {
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address creOperator = vm.envAddress("CRE_OPERATOR");
+        address deployer = vm.addr(deployerKey);
 
         vm.startBroadcast(deployerKey);
 
-        // 1. Token
-        HumanDropToken token = new HumanDropToken(1_000_000e18);
-        console.log("HumanDropToken:", address(token));
-
-        // 2. WorldIDVerifier
-        WorldIDVerifier verifier = new WorldIDVerifier();
-        verifier.setOperator(creOperator, true);
-        console.log("WorldIDVerifier:", address(verifier));
-
-        // 3. HumanDrop + initial airdrop
-        HumanDrop drop = new HumanDrop();
-        drop.setOperator(creOperator, true);
-        console.log("HumanDrop:", address(drop));
-
-        drop.createAirdrop(address(token), 100e18, 50e18, 1000, block.timestamp + 30 days);
-        token.transfer(address(drop), 300_000e18);
-        console.log("Funded HumanDrop: 300k HDT");
-
-        // 4. StakingVault (12.5% APY)
-        StakingVault staking = new StakingVault(address(token), 1250);
-        console.log("StakingVault:", address(staking));
-
-        // Fund with reward tokens
-        token.transfer(address(staking), 200_000e18);
-        console.log("Funded StakingVault: 200k HDT");
-
-        // 5. BatchPayout
-        BatchPayout payout = new BatchPayout();
-        console.log("BatchPayout:", address(payout));
-
-        // 6. VestingVault
-        VestingVault vesting = new VestingVault();
-        console.log("VestingVault:", address(vesting));
+        // Single transaction — deploys all 9 contracts
+        BatchDeployer bd = new BatchDeployer(creOperator, deployer);
 
         vm.stopBroadcast();
 
-        // Summary
+        // Read addresses from deployer contract
+        console.log("=== All contracts deployed in 1 tx ===");
+        console.log("HumanDropToken:", bd.token());
+        console.log("WorldIDVerifier:", bd.verifier());
+        console.log("HumanDrop:", bd.humanDrop());
+        console.log("StakingVault:", bd.stakingVault());
+        console.log("BatchPayout:", bd.batchPayout());
+        console.log("VestingVault:", bd.vestingVault());
+        console.log("FairLaunch:", bd.fairLaunch());
+        console.log("TokenFactory:", bd.tokenFactory());
+        console.log("MannaIndex:", bd.mannaIndex());
         console.log("---");
-        console.log("Update manna_app/.env.local with:");
-        console.log("NEXT_PUBLIC_HDT_ADDRESS=", address(token));
-        console.log("NEXT_PUBLIC_HUMANDROP_ADDRESS=", address(drop));
-        console.log("NEXT_PUBLIC_WORLD_ID_VERIFIER_ADDRESS=", address(verifier));
-        console.log("NEXT_PUBLIC_STAKING_VAULT_ADDRESS=", address(staking));
-        console.log("NEXT_PUBLIC_BATCH_PAYOUT_ADDRESS=", address(payout));
-        console.log("NEXT_PUBLIC_VESTING_VAULT_ADDRESS=", address(vesting));
+        console.log("NEXT_PUBLIC_HDT_ADDRESS=", bd.token());
+        console.log("NEXT_PUBLIC_HUMANDROP_ADDRESS=", bd.humanDrop());
+        console.log("NEXT_PUBLIC_WORLD_ID_VERIFIER_ADDRESS=", bd.verifier());
+        console.log("NEXT_PUBLIC_STAKING_VAULT_ADDRESS=", bd.stakingVault());
+        console.log("NEXT_PUBLIC_BATCH_PAYOUT_ADDRESS=", bd.batchPayout());
+        console.log("NEXT_PUBLIC_VESTING_VAULT_ADDRESS=", bd.vestingVault());
+        console.log("NEXT_PUBLIC_FAIR_LAUNCH_ADDRESS=", bd.fairLaunch());
+        console.log("NEXT_PUBLIC_TOKEN_FACTORY_ADDRESS=", bd.tokenFactory());
+        console.log("NEXT_PUBLIC_MANNA_INDEX_ADDRESS=", bd.mannaIndex());
     }
 }

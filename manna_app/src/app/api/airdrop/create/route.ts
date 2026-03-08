@@ -3,6 +3,7 @@ import { parseUnits, formatUnits, decodeEventLog } from 'viem';
 import { publicClient, getWalletClient, HUMANDROP_ADDRESS } from '@/lib/contracts';
 import HumanDropABI from '@/abi/HumanDrop.json';
 import ERC20ABI from '@/abi/ERC20.json';
+import { getAuthSession } from '@/lib/auth';
 
 interface CreateAirdropBody {
   tokenAddress: string;
@@ -14,6 +15,11 @@ interface CreateAirdropBody {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAuthSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = (await req.json()) as CreateAirdropBody;
 
     if (!body.tokenAddress || !body.amountOrb || !body.amountDevice || !body.maxClaims || !body.expiryDays) {
@@ -47,8 +53,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Fund contract: worst case amountOrb * maxClaims
-    const fundingAmount = amountOrbWei * BigInt(body.maxClaims);
+    // Fund contract: worst case max(amountOrb, amountDevice) * maxClaims
+    const maxAmountWei = amountOrbWei > amountDeviceWei ? amountOrbWei : amountDeviceWei;
+    const fundingAmount = maxAmountWei * BigInt(body.maxClaims);
     const transferHash = await walletClient.writeContract({
       address: body.tokenAddress as `0x${string}`,
       abi: ERC20ABI,

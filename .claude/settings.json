@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(forge test --help:*)",
+      "Bash(~/.foundry/bin/forge build:*)",
+      "Bash(npm run build:*)",
+      "Bash(cre workflow simulate:*)",
+      "WebFetch(domain:github.com)",
+      "Read(//tmp/**)",
+      "Bash(cast send:*)",
+      "Bash(python3:*)",
+      "Bash(npx next build)"
+    ]
+  }
+}

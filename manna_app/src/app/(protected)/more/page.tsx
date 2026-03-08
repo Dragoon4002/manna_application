@@ -1,59 +1,23 @@
-import {
-  GraphUp,
-  Coins,
-  ShieldCheck,
-  Trash,
-  ShieldQuestion,
-  CheckCircle,
-  Book,
-  Dashboard,
-  Lock,
-} from 'iconoir-react';
+'use client';
+
+import { BookStack, Timer, CreditCard, GraphUp, StatsReport } from 'iconoir-react';
 import NavCard from '@/components/NavCard';
 
-const groups = [
-  {
-    title: 'Trade & Markets',
-    items: [
-      { label: 'Trade', href: '/trade', icon: GraphUp },
-      { label: 'Tokens', href: '/tokens', icon: Coins },
-      { label: 'Escrow', href: '/escrow', icon: ShieldCheck },
-    ],
-  },
-  {
-    title: 'Tools & Utilities',
-    items: [
-      { label: 'Dust Collector', href: '/utilities/dust-collector', icon: Trash, isNew: true },
-      { label: 'Sybil Checker', href: '/utilities/sybil-checker', icon: ShieldQuestion, isNew: true },
-      { label: 'Airdrop Checker', href: '/utilities/airdrop-checker', icon: CheckCircle, isNew: true },
-      { label: 'Address Book', href: '/utilities/address-book', icon: Book },
-    ],
-  },
-  {
-    title: 'Management',
-    items: [
-      { label: 'Dashboards', href: '/dashboards', icon: Dashboard },
-      { label: 'Locks', href: '/locks', icon: Lock },
-    ],
-  },
+const items = [
+  { label: 'Staking', description: 'Stake tokens and earn rewards', href: '/more/staking', icon: BookStack },
+  { label: 'Vesting', description: 'Token vesting schedules', href: '/more/vesting', icon: Timer },
+  { label: 'Payouts', description: 'Batch distributions', href: '/more/payouts', icon: CreditCard },
+  { label: 'Portfolio', description: 'Your holdings overview', href: '/more/portfolio', icon: GraphUp },
+  { label: 'Stats', description: 'Protocol analytics', href: '/more/stats', icon: StatsReport },
 ];
 
 export default function MorePage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-white mb-6">More</h1>
-      <div className="flex flex-col gap-6">
-        {groups.map((group) => (
-          <div key={group.title}>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              {group.title}
-            </p>
-            <div className="grid gap-2">
-              {group.items.map((item) => (
-                <NavCard key={item.href} {...item} />
-              ))}
-            </div>
-          </div>
+    <div className="p-6 flex flex-col gap-6">
+      <h1 className="text-2xl font-bold text-white">More</h1>
+      <div className="grid gap-3">
+        {items.map((item) => (
+          <NavCard key={item.href} {...item} />
         ))}
       </div>
     </div>

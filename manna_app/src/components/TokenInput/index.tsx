@@ -11,7 +11,7 @@ interface TokenInputProps {
 export default function TokenInput({ label, token, balance, value, onChange }: TokenInputProps) {
   return (
     <div>
-      <p className="text-xs text-gray-500 mb-2">{label}</p>
+      <p className="text-xs text-gray-400 mb-2">{label}</p>
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-white bg-white/10 px-3 py-1.5 rounded-lg">
@@ -24,11 +24,11 @@ export default function TokenInput({ label, token, balance, value, onChange }: T
           placeholder="0.00"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="bg-transparent text-right text-2xl font-bold text-white outline-none w-full placeholder:text-gray-600"
+          className="bg-transparent text-right text-2xl font-bold text-white outline-none w-full placeholder:text-gray-500"
         />
       </div>
       {balance && (
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-400 mt-2">
           Balance: {balance}
         </p>
       )}

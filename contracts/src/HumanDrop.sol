@@ -133,10 +133,10 @@ contract HumanDrop is Ownable {
         return airdrops[airdropId];
     }
 
-    /// @notice Withdraw unclaimed tokens after expiry. Only creator.
+    /// @notice Withdraw unclaimed tokens after expiry. Creator or operator.
     function withdraw(uint256 airdropId) external {
         Airdrop storage a = airdrops[airdropId];
-        if (msg.sender != a.creator) revert NotAuthorized();
+        if (msg.sender != a.creator && !operators[msg.sender] && msg.sender != owner()) revert NotAuthorized();
         if (block.timestamp <= a.expiry) revert AirdropNotActive();
 
         uint256 balance = IERC20(a.token).balanceOf(address(this));

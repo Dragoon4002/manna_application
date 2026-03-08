@@ -1,0 +1,6 @@
+{
+  "fairLaunchWorldChain": "0x0000000000000000000000000000000000000000",
+  "fairLaunchArbSepolia": "0xabeE9807Bb7f3F22cB676e77F3c354F3b5a9C02C",
+  "fairLaunchBaseSepolia": "0x0000000000000000000000000000000000000000",
+  "schedule": "*/5 * * * *"
+}

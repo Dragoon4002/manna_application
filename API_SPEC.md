@@ -507,21 +507,21 @@ export async function GET(req: NextRequest) {
 
 ## Summary
 
-### API Routes to Create (10 total)
+### API Routes (4/10 implemented)
 
-| Route | Method | Purpose | CRE? |
-|-------|--------|---------|------|
-| `/api/auth/wallet` | POST | Create JWT session | No |
-| `/api/airdrop/eligibility` | GET | Check eligibility | No |
-| `/api/launch/list` | GET | Get active launches | No |
-| `/api/token/mint` | POST | Mint tokens | Yes |
-| `/api/portfolio` | GET | Multi-chain balances | Yes |
-| `/api/stats` | GET | Protocol stats | No |
-| `/api/staking/stake` | POST | Stake tokens | No |
-| `/api/staking/unstake` | POST | Unstake tokens | No |
-| `/api/staking/positions` | GET | Get positions | No |
-| `/api/payouts/create` | POST | Batch payout | No |
-| `/api/payouts/history` | GET | Payout history | No |
+| Route | Method | Purpose | CRE? | Status |
+|-------|--------|---------|------|--------|
+| `/api/auth/wallet` | POST | Create JWT session | No | ❌ |
+| `/api/airdrop/eligibility` | GET | Check eligibility | No | ❌ |
+| `/api/launch/list` | GET | Get active launches | No | ✅ |
+| `/api/token/mint` | POST | Mint tokens | Yes | ✅ |
+| `/api/portfolio` | GET | Balances + staking + vesting | No | ✅ |
+| `/api/stats` | GET | Protocol stats + chain stats | No | ✅ |
+| `/api/staking/stake` | POST | Stake tokens | No | ❌ |
+| `/api/staking/unstake` | POST | Unstake tokens | No | ❌ |
+| `/api/staking/positions` | GET | Get positions | No | ❌ |
+| `/api/payouts/create` | POST | Batch payout | No | ❌ |
+| `/api/payouts/history` | GET | Payout history | No | ❌ |
 
 ### Environment Variables Needed
 

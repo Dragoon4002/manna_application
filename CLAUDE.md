@@ -3,28 +3,27 @@
 > Token launches, airdrops, staking, and portfolio management for verified humans only.
 > Powered by World ID + Chainlink CRE.
 
-## 🎯 Current Status
+## Current Status
 
-**Contracts + CRE Workflows:** ✅ 95% Complete (88/88 tests passing)
-**API Integration:** ⚠️ 0% Complete (10 routes needed)
-**Frontend Wiring:** ⚠️ 20% Complete (6 pages need data integration)
+**Contracts:** ✅ 100% (9 contracts, 96/96 tests, deployed to Tenderly VNet)
+**CRE Workflows:** ✅ 100% (8 workflows written, deployment blocked on CRE staging URL)
+**API Routes:** ✅ 100% (37 routes)
+**Frontend:** ✅ 100% (24 pages, 24 components, 5-tab nav, clean build — 50 pages total)
+**Auth:** ✅ DEBUG mode bypass for local dev (no World ID needed)
 
-See `DEPLOYMENT.md` for deployment guide and `API_SPEC.md` for required API routes.
-
-## Feature Spec Reference
-
-Full feature spec w/ all pages, contracts, API routes, CRE workflows, and implementation status:
-**`manna_app/tasks/app-overview.md`**
+### What's Left
+- CRE workflow deployment (needs staging URL)
+- E2E testing of all flows
+- Demo video + submission
 
 ---
 
 ## What It Does
 
-HumanDrop lets project creators distribute tokens to verified humans across chains. World ID provides sybil resistance (one claim per human), Chainlink CRE orchestrates the cross-chain verification and distribution, and Tenderly provides the testing infrastructure.
+Manna lets project creators distribute tokens to verified humans across chains. World ID provides sybil resistance (one claim per human), Chainlink CRE orchestrates cross-chain verification and distribution, Tenderly provides testing infra.
 
-**Problem:** Airdrops are farmed by bots and sybil accounts. Projects waste tokens on fake users.
-
-**Solution:** Gate claims behind World ID proof-of-personhood. CRE bridges verification from World ID's ecosystem to any EVM chain — no native World ID support needed on the target chain.
+**Problem:** Airdrops farmed by bots/sybils. Projects waste tokens on fake users.
+**Solution:** Gate claims behind World ID proof-of-personhood. CRE bridges verification from World ID to any EVM chain.
 
 ---
 
@@ -38,37 +37,24 @@ HumanDrop lets project creators distribute tokens to verified humans across chai
                            │ POST /api/claim
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Next.js Backend (manna/)                     │
-│  Relays proof + airdropId + receiver to CRE HTTP Trigger         │
+│                     Next.js Backend (manna_app/)                 │
+│  37 API routes — reads via publicClient, writes via walletClient │
+│  DEBUG mode: env wallet bypass, no World ID needed               │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ HTTP POST
+                           │ HTTP POST (CRE relay) / direct write
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    CRE Workflow (workflow/)                       │
-│                                                                  │
-│  1. ConfidentialHTTPClient → World ID Cloud API                  │
-│     POST /api/v2/verify/{app_id} — verify ZK proof              │
-│     (runs in enclave, API key never exposed)                     │
-│                                                                  │
-│  2. EVMClient.callContract() → Arbitrum Sepolia                  │
-│     Read hasClaimed(airdropId, nullifierHash)                    │
-│                                                                  │
-│  3. EVMClient.writeReport() → HumanDrop contract                 │
-│     claim(airdropId, nullifierHash, receiver, level)             │
-│     Transfers tokens: Orb=100 HDT, Device=50 HDT                │
-│                                                                  │
-│  4. EVMClient.writeReport() → WorldIDVerifier contract           │
-│     registerHuman(nullifierHash, level)                          │
-│     Public good — any protocol can query isVerifiedHuman()       │
-└─────────────────────────────────────────────────────────────────┘
+│  8 workflows: claim, mint, deploy, create, reclaim,              │
+│  portfolio, stats-sync, fair-launch-finalize                     │
+└──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              Arbitrum Sepolia (target chain)                      │
-│                                                                  │
-│  HumanDrop.sol        — airdrop vault, tiered claims, escrow     │
-│  WorldIDVerifier.sol  — public human registry                    │
-│  HumanDropToken.sol   — test ERC20                               │
+│              Arbitrum Sepolia (Tenderly VNet)                     │
+│  9 contracts: HumanDrop, FairLaunch, TokenFactory, MannaToken,   │
+│  MannaIndex, StakingVault, VestingVault, BatchPayout,            │
+│  WorldIDVerifier                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -78,61 +64,79 @@ HumanDrop lets project creators distribute tokens to verified humans across chai
 
 ```
 human-gated-airdrop/
-├── contracts/                    # Foundry — Solidity smart contracts (88 tests ✅)
+├── contracts/                    # Foundry — 9 contracts, 96 tests ✅
 │   ├── src/
-│   │   ├── HumanDrop.sol         # Airdrop vault + claim logic + isEligible()
-│   │   ├── FairLaunch.sol        # Token launch w/ bonding curve + getActiveLaunches()
+│   │   ├── HumanDrop.sol         # Airdrop vault + claim + isEligible + withdraw
+│   │   ├── FairLaunch.sol        # Token launch w/ bonding curve + getActiveLaunches
 │   │   ├── TokenFactory.sol      # Deploy custom ERC20s
 │   │   ├── MannaToken.sol        # ERC20 w/ optional minting
-│   │   ├── MannaIndex.sol        # 🆕 Protocol stats registry
+│   │   ├── MannaIndex.sol        # Protocol stats registry
 │   │   ├── StakingVault.sol      # Stake tokens, earn rewards
 │   │   ├── VestingVault.sol      # Token vesting schedules
 │   │   ├── BatchPayout.sol       # Multi-recipient distributions
 │   │   └── WorldIDVerifier.sol   # Public good human registry
-│   ├── test/                     # 88 tests across 7 contracts
-│   └── script/
-│       └── Deploy.s.sol          # Multi-chain deployment
+│   ├── test/                     # 96 tests (88 unit + 8 integration)
+│   └── script/DeployAll.s.sol    # BatchDeployer — all 9 in 1 tx
 │
-├── workflow/                     # CRE — 8 workflows (4 new ✅)
-│   ├── main.ts                   # HTTP: airdrop claim w/ World ID verification
-│   ├── token-mint.ts             # 🆕 HTTP: mint additional token supply
-│   ├── token-deploy.ts           # HTTP: deploy ERC20 via TokenFactory
-│   ├── airdrop-create.ts         # HTTP: create airdrop on target chain
-│   ├── airdrop-reclaim.ts        # 🆕 Cron (6h): auto-reclaim expired airdrops
-│   ├── portfolio-aggregate.ts    # 🆕 HTTP: read balances across 3 chains
-│   ├── stats-sync.ts             # 🆕 Cron (10min): sync stats to MannaIndex
-│   ├── fair-launch-finalize.ts   # Cron (5min): auto-finalize ended launches
-│   ├── abi.ts                    # 🆕 Extended w/ new contract ABIs
-│   └── *.workflow.yaml           # 8 workflow configs + staging.json
+├── workflow/                     # CRE — 8 workflows
+│   ├── claim/main.ts             # HTTP: airdrop claim w/ World ID
+│   ├── token-mint/main.ts        # HTTP: mint token supply
+│   ├── token-deploy/main.ts      # HTTP: deploy ERC20 via TokenFactory
+│   ├── airdrop-create/main.ts    # HTTP: create airdrop
+│   ├── airdrop-reclaim/main.ts   # Cron (6h): reclaim expired airdrops
+│   ├── portfolio-aggregate/main.ts # HTTP: read balances across 3 chains
+│   ├── stats-sync/main.ts        # Cron (10min): sync stats → MannaIndex
+│   └── fair-launch-finalize/main.ts # Cron (5min): finalize ended launches
 │
-├── manna_app/                    # Next.js — World Mini App (needs API wiring ⚠️)
-│   ├── src/app/api/              # ⚠️ 10 API routes needed (see API_SPEC.md)
-│   │   ├── claim/route.ts        # ✅ POST — relay proof to CRE
-│   │   ├── airdrop/
-│   │   │   ├── list/route.ts     # ✅ GET — list active airdrops
-│   │   │   └── eligibility/      # ❌ GET — check isEligible (NEEDED)
-│   │   ├── launch/list/          # ❌ GET — getActiveLaunches (NEEDED)
-│   │   ├── token/mint/           # ❌ POST — trigger token-mint.ts (NEEDED)
-│   │   ├── portfolio/            # ❌ GET — trigger portfolio-aggregate (NEEDED)
-│   │   ├── stats/                # ❌ GET — read MannaIndex (NEEDED)
-│   │   ├── staking/              # ❌ stake/unstake/positions (NEEDED)
-│   │   └── payouts/              # ❌ create/history (NEEDED)
-│   ├── src/app/(protected)/      # 6 pages need real data
-│   │   ├── airdrops/             # ⚠️ Needs eligibility check integration
-│   │   ├── fair-launch/          # ⚠️ Placeholder only, needs launch list
-│   │   ├── utilities/token-mint/ # ⚠️ Needs deployment form
-│   │   ├── staking/              # ⚠️ Needs real positions data
-│   │   ├── dashboards/           # ⚠️ Needs MannaIndex stats
-│   │   └── portfolio/            # ⚠️ Needs multi-chain balances
-│   └── src/abi/                  # Contract ABIs (from Foundry build)
+├── manna_app/                    # Next.js 15 — World Mini App
+│   ├── src/app/api/              # 37 API routes ✅
+│   │   ├── airdrop/              # list, [id], claim, create, eligibility
+│   │   ├── launch/               # list, [id], create, contribute, claim, refund
+│   │   ├── token/                # list, [address], deploy, mint, transfer
+│   │   ├── staking/              # positions, position/[id], stake, unstake, claim-rewards
+│   │   ├── vesting/              # schedules, schedule/[id], create, claim, revoke
+│   │   ├── payouts/              # history, [id], create
+│   │   ├── portfolio/            # multi-chain balances
+│   │   ├── stats/                # MannaIndex stats
+│   │   └── cron/                 # finalize, reclaim, stats-sync
+│   │
+│   ├── src/app/(protected)/      # 24 pages across 5 tabs ✅
+│   │   ├── home/                 # Dashboard + quick actions
+│   │   ├── wallet/               # Send tokens
+│   │   ├── explore/              # Browse airdrops/launches/tokens + detail pages
+│   │   ├── create/               # Deploy token, mint, create airdrop/launch
+│   │   ├── history/              # Activity timeline + detail pages
+│   │   └── more/                 # Staking, vesting, payouts, portfolio, stats
+│   │
+│   ├── src/components/           # 24 components ✅
+│   │   ├── BottomNav/            # 5-tab nav (Home, Explore, Create, History, More)
+│   │   ├── GlassCard/, StatCard/, NavCard/, AirdropCard/, TokenInput/
+│   │   ├── FormField/, DetailRow/, StatusBadge/, SearchBar/
+│   │   ├── EmptyState/, SectionHeader/, ProgressBar/
+│   │   ├── Navbar/, AuthGate/, AuthButton/
+│   │   └── Navigation/, Sidebar/, PageLayout/, Verify/, Pay/, etc.
+│   │
+│   ├── src/abi/                  # All contract ABIs
+│   ├── src/lib/contracts.ts      # All 9 contract address exports
+│   └── src/lib/auth.ts           # getAuthSession() w/ DEBUG bypass
 │
-├── tasks/
-│   └── todo.md                   # Phase 6 ✅ complete, Phase 7 in progress
-│
-├── DEPLOYMENT.md                 # 🆕 Complete deployment guide
-├── API_SPEC.md                   # 🆕 10 API routes w/ implementations
-└── README_NEXT_STEPS.md          # 🆕 Human + Claude handoff guide
+├── tasks/todo.md                 # Progress tracker
+├── API_SPEC.md                   # API route specs
+├── DEPLOYMENT.md                 # Deployment guide
+└── README_NEXT_STEPS.md          # Handoff guide
 ```
+
+---
+
+## 5-Tab Navigation
+
+| Tab | Icon | Pages |
+|-----|------|-------|
+| **Home** | Home | `/home`, `/wallet` |
+| **Explore** | Search | `/explore`, `/explore/airdrop/[id]`, `/explore/launch/[id]`, `/explore/token/[address]` |
+| **Create** | Plus (center) | `/create`, `/create/token`, `/create/token/mint`, `/create/airdrop`, `/create/launch` |
+| **History** | Clock | `/history`, `/history/claim/[id]`, `/history/contribution/[id]`, `/history/payout/[id]` |
+| **More** | Menu | `/more`, `/more/staking`, `/more/staking/[positionId]`, `/more/vesting`, `/more/vesting/[scheduleId]`, `/more/payouts`, `/more/payouts/[id]`, `/more/portfolio`, `/more/stats` |
 
 ---
 
@@ -140,106 +144,105 @@ human-gated-airdrop/
 
 | File | Type | Purpose |
 |------|------|---------|
-| `workflow/main.ts` | HTTP | Airdrop claim w/ World ID verification |
-| `workflow/token-mint.ts` | HTTP | Mint additional token supply (multi-chain) |
-| `workflow/token-deploy.ts` | HTTP | Deploy ERC20 via TokenFactory |
-| `workflow/airdrop-create.ts` | HTTP | Create airdrop on target chain |
-| `workflow/airdrop-reclaim.ts` | Cron (6h) | Auto-reclaim expired airdrops |
-| `workflow/portfolio-aggregate.ts` | HTTP | Read balances across 3 chains |
-| `workflow/stats-sync.ts` | Cron (10min) | Aggregate stats → MannaIndex |
-| `workflow/fair-launch-finalize.ts` | Cron (5min) | Auto-finalize ended launches |
-| `contracts/src/HumanDrop.sol` | Contract | Airdrop vault — CRE operator writes claims |
-| `contracts/src/FairLaunch.sol` | Contract | Token launch — CRE operator finalizes |
-| `contracts/src/TokenFactory.sol` | Contract | Token deployment — CRE operator deploys |
-| `contracts/src/MannaIndex.sol` | Contract | Stats registry — CRE operator updates |
+| `workflow/claim/main.ts` | HTTP | Airdrop claim w/ World ID verification |
+| `workflow/token-mint/main.ts` | HTTP | Mint additional token supply |
+| `workflow/token-deploy/main.ts` | HTTP | Deploy ERC20 via TokenFactory |
+| `workflow/airdrop-create/main.ts` | HTTP | Create airdrop on target chain |
+| `workflow/airdrop-reclaim/main.ts` | Cron (6h) | Auto-reclaim expired airdrops |
+| `workflow/portfolio-aggregate/main.ts` | HTTP | Read balances across 3 chains |
+| `workflow/stats-sync/main.ts` | Cron (10min) | Aggregate stats → MannaIndex |
+| `workflow/fair-launch-finalize/main.ts` | Cron (5min) | Auto-finalize ended launches |
 
 ---
 
 ## Smart Contracts
 
-### Core Contracts
-
 **HumanDrop.sol** — Airdrop vault + claim logic
-- `createAirdrop(token, amountOrb, amountDevice, maxClaims, expiry)` — creator sets up campaign
-- `claim(airdropId, nullifierHash, receiver, level)` — CRE operator only, distributes tokens
-- `isEligible(airdropId, nullifierHash)` — 🆕 check eligibility before claiming
-- `withdraw(airdropId)` — creator reclaims unclaimed tokens after expiry
-- Tiered: Orb-verified humans get more than Device-verified
+- `createAirdrop(token, amountOrb, amountDevice, maxClaims, expiry)`
+- `claim(airdropId, nullifierHash, receiver, level)` — CRE operator only
+- `isEligible(airdropId, nullifierHash)` — eligibility check
+- `withdraw(airdropId)` — reclaim after expiry (creator/operator/owner)
 
 **FairLaunch.sol** — Token launch w/ bonding curve
-- `createLaunch(token, totalTokens, hardCap, softCap, duration, maxPerWallet, startPrice, endPrice)` — create launch
-- `contribute()` — buy tokens at current bonding curve price
-- `finalize(launchId)` — CRE operator finalizes after endTime
-- `getActiveLaunches()` — 🆕 returns all non-finalized launches
-- `claim()` — claim tokens if launch succeeded
-- `refund()` — get refund if softcap missed
+- `createLaunch(token, totalTokens, hardCap, softCap, duration, maxPerWallet, startPrice, endPrice)`
+- `contribute()`, `finalize(launchId)`, `claim()`, `refund()`
+- `getActiveLaunches()` — returns non-finalized launches
 
-**TokenFactory.sol** — Deploy custom ERC20s
-- `deployToken(name, symbol, initialSupply, decimals, owner, enableMinting)` — CRE operator deploys
-- Creates MannaToken instances with optional minting
+**TokenFactory.sol** — Deploy custom ERC20s via `deployToken()`
 
-**MannaIndex.sol** — 🆕 Protocol stats registry
-- `updateStats(totalAirdrops, totalLaunches, totalUsers, totalVolume)` — CRE operator updates
-- `updateChainStats(chainName, airdrops, launches, users, volume)` — per-chain stats
-- `getStats()` — public view for dashboards
+**MannaIndex.sol** — Protocol stats registry (`updateStats`, `getStats`)
 
-**StakingVault.sol** — Stake tokens, earn rewards
-- `stake(amount, lockPeriod)` — lock tokens for rewards
-- `unstake(positionId)` — withdraw after lock expires
-- `claimRewards(positionId)` — claim accrued rewards
-- `getPositions(wallet)` — view all user positions
+**StakingVault.sol** — `stake()`, `unstake()`, `claimRewards()`, `getPositions()`
 
-**BatchPayout.sol** — Multi-recipient distributions
-- `distribute(token, recipients[], amounts[])` — batch transfers
-- `getPayouts(sender)` — view payout history
+**VestingVault.sol** — `createSchedule()`, `claim()`, `revoke()`, `getSchedule()`
 
-**WorldIDVerifier.sol** — Public good human registry
-- `registerHuman(nullifierHash, verificationLevel)` — CRE operator only
-- `isVerifiedHuman(nullifierHash)` — public view, any protocol can use
+**BatchPayout.sol** — `distribute()`, `getPayouts()`
+
+**WorldIDVerifier.sol** — `registerHuman()`, `isVerifiedHuman()`
+
+---
+
+## Deployed Addresses (Tenderly VNet — Arb Sepolia Fork)
+
+| Contract | Address |
+|----------|---------|
+| HumanDrop | `0x0ed584cbaf3d6dB14Eb5cCdce441aE2409524AAC` |
+| FairLaunch | `0xabeE9807Bb7f3F22cB676e77F3c354F3b5a9C02C` |
+| TokenFactory | `0x5067896B905A2464Afab3CDF59f6CAf7E71f95eb` |
+| MannaIndex | `0x43AA95Fc38444D71eA971dDA9CdB486fB21a725d` |
+| HDT | `0x01768ffFb5E313915aDFe93b6a4369B4ef9991CB` |
+| Server Wallet | `0x53cFee9b964ccc90003f02fb8e0b0985071F4002` |
+
+RPC: `https://virtual.arbitrum-sepolia.eu.rpc.tenderly.co/6a9f849c-604c-4d4e-99f7-1394077fb61f`
 
 ---
 
 ## Setup
 
-### 1. Contracts
-
+### Contracts
 ```bash
-cd contracts
-forge build
-forge test -vv     # 88 tests across 7 contracts, all passing
+cd contracts && forge build && forge test -vv  # 96 tests
 ```
 
-### 2. Deploy to Tenderly Virtual TestNet
-
+### Deploy to Tenderly
 ```bash
-# Create Virtual TestNet in Tenderly dashboard (fork Arbitrum Sepolia)
-# Get the RPC URL from Tenderly
-
-export PRIVATE_KEY=your_deployer_key
-export CRE_OPERATOR=0x_cre_operator_address
-
-forge script script/Deploy.s.sol --rpc-url $TENDERLY_RPC --broadcast
+export PRIVATE_KEY=0x... CRE_OPERATOR=0x...
+forge script script/DeployAll.s.sol --tc DeployAll --rpc-url $TENDERLY_RPC --broadcast
 ```
 
-### 3. CRE Workflow
-
+### Mini App
 ```bash
-cd workflow
-bun install
-# Update config.staging.json with deployed contract addresses
-
-# Simulate locally
-cre workflow simulate
+cd manna_app && npm install && cp .env.sample .env.local
+# Fill .env.local, then:
+npm run dev  # http://localhost:3000
 ```
 
-### 4. Mini App
+### Debug Mode (local dev without World ID)
+Set in `.env.local`:
+```
+DEBUG_MODE=true
+NEXT_PUBLIC_DEFAULT_WALLET='0x53cFee9b964ccc90003f02fb8e0b0985071F4002'
+```
 
-```bash
-cd manna
-npm install
-cp .env.sample .env.local
-# Fill in: ARBITRUM_SEPOLIA_RPC, NEXT_PUBLIC_HUMANDROP_ADDRESS, CRE_WORKFLOW_URL
-npm run dev
+---
+
+## Key Patterns
+
+### Server wallet writes
+All on-chain writes go through `CREATOR_PRIVATE_KEY` server wallet via `getWalletClient()` in `contracts.ts`.
+
+### Session wallet
+```typescript
+const wallet = session?.user?.walletAddress ?? process.env.NEXT_PUBLIC_DEFAULT_WALLET ?? '0x0';
+```
+
+### BigInt compatibility
+No `0n` literals — use `BigInt(0)`. TypeScript target < ES2020.
+
+### Dynamic route params (Next.js 15)
+```typescript
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 ```
 
 ---
@@ -248,10 +251,10 @@ npm run dev
 
 | Track | How Satisfied |
 |-------|--------------|
-| **World ID + CRE** | CRE verifies World ID proof via Cloud API, writes to Arb Sepolia (non-World chain) |
-| **World Mini App + CRE** | Mini App uses walletAuth + verify, backend triggers CRE, result shown in UI |
-| **Tenderly** | Contracts deployed on Virtual TestNet (Arb Sepolia fork), txs visible in Explorer |
-| **DeFi & Tokenization** | CRE integrates blockchain (Arb Sepolia) + external system (World ID API) |
+| **World ID + CRE** | CRE verifies World ID proof via Cloud API, writes to Arb Sepolia |
+| **World Mini App + CRE** | Mini App uses walletAuth + verify, backend triggers CRE |
+| **Tenderly** | Contracts deployed on Virtual TestNet, txs visible in Explorer |
+| **DeFi & Tokenization** | CRE integrates blockchain + external system (World ID API) |
 
 ---
 
@@ -259,7 +262,7 @@ npm run dev
 
 - **Sybil resistance** — World ID nullifier hash = one claim per human per airdrop
 - **Operator gating** — only CRE's consensus-signed reports can call `claim()` and `registerHuman()`
-- **Double-claim** — checked both by CRE (reads before writing) and contract (reverts on duplicate)
+- **Double-claim** — checked both by CRE and contract (reverts on duplicate)
 - **Confidential secrets** — World ID API key stays in CRE's VaultDON enclave
 
 ---
@@ -268,6 +271,6 @@ npm run dev
 
 - **Contracts:** Solidity 0.8.24, Foundry, OpenZeppelin v5
 - **CRE:** TypeScript, @chainlink/cre-sdk, viem
-- **Frontend:** Next.js 15, React 19, @worldcoin/minikit-js, @worldcoin/mini-apps-ui-kit-react
+- **Frontend:** Next.js 15, React 19, @worldcoin/minikit-js, iconoir-react
 - **Testing:** Tenderly Virtual TestNet (Arbitrum Sepolia fork)
 - **Target chain:** Arbitrum Sepolia

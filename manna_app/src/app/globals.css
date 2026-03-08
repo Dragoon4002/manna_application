@@ -4,17 +4,39 @@
 :root {
   --w-blue: 63 219 237;
   --w-success: 0 194 48;
+  --w-accent: 120 90 255;
 }
 
 @theme inline {
   --color-w-blue: rgb(var(--w-blue));
   --color-w-success: rgb(var(--w-success));
+  --color-w-accent: rgb(var(--w-accent));
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: theme('colors.gray.900');
-  color: white;
+  background: #0b0e12;
+  color: #e2e8f0;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Subtle glow for accent elements */
+.glow-accent {
+  box-shadow: 0 0 40px rgba(120, 90, 255, 0.3);
 }

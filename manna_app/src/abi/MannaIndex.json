@@ -1,0 +1,369 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "chainStats",
+    "inputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "airdrops",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "launches",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "users",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "volume",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getChainStats",
+    "inputs": [
+      {
+        "name": "chainName",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MannaIndex.ChainStats",
+        "components": [
+          {
+            "name": "airdrops",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "launches",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "users",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "volume",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MannaIndex.ProtocolStats",
+        "components": [
+          {
+            "name": "totalAirdrops",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalLaunches",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalUsers",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalVolume",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastUpdate",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "operators",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "renounceOwnership",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setOperator",
+    "inputs": [
+      {
+        "name": "op",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "status",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "stats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "totalAirdrops",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalLaunches",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalUsers",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalVolume",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lastUpdate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [
+      {
+        "name": "newOwner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateChainStats",
+    "inputs": [
+      {
+        "name": "chainName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "airdrops",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "launches",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "users",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "volume",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateStats",
+    "inputs": [
+      {
+        "name": "totalAirdrops",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalLaunches",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalUsers",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalVolume",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StatsUpdated",
+    "inputs": [
+      {
+        "name": "totalAirdrops",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalLaunches",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalUsers",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalVolume",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "NotOperator",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OwnableInvalidOwner",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OwnableUnauthorizedAccount",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  }
+]

@@ -1,128 +1,117 @@
-# CRE Workflows — Token Launchpad
+# CRE Workflows — Manna Protocol
 
-Production-ready Chainlink CRE workflows for multi-chain token deployment, fair launch finalization, and airdrop creation.
+8 Chainlink CRE workflows for sybil-resistant airdrops, token launches, staking, and protocol stats.
 
-## Workflows
+## Structure
 
-### 1. token-deploy (HTTP Trigger)
-Deploys ERC20 tokens via TokenFactory on World Chain, Arbitrum Sepolia, or Base Sepolia.
+Each workflow lives in its own folder with `workflow.yaml`, TypeScript entry, and staging config.
 
-**Request:**
-```json
-{
-  "creator": "0x...",
-  "name": "My Token",
-  "symbol": "MTK",
-  "initialSupply": "1000000000000000000000000",
-  "decimals": 18,
-  "enableMinting": true,
-  "targetChain": "world-chain"
-}
+```
+workflow/
+├── claim/                  HTTP — Airdrop claim w/ World ID verification
+├── airdrop-create/         HTTP — Create airdrops on HumanDrop
+├── airdrop-reclaim/        Cron (6h) — Auto-reclaim expired airdrops
+├── token-deploy/           HTTP — Deploy ERC20 via TokenFactory
+├── token-mint/             HTTP — Mint additional token supply
+├── fair-launch-finalize/   Cron (5min) — Auto-finalize ended launches
+├── stats-sync/             Cron (10min) — Aggregate stats to MannaIndex
+├── portfolio-aggregate/    HTTP — Read balances across 3 chains
+├── package.json
+└── tsconfig.json
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "chain": "world-chain",
-  "txHash": "0x...",
-  "message": "Token deployed — parse logs for address"
-}
-```
+Each folder has its own README with config keys and commands.
 
-**Simulate:**
+## Quick Start
+
 ```bash
 cd workflow
-cre workflow simulate token-deploy --target staging --workflow-file token-deploy.workflow.yaml
+bun install
+
+# Simulate any workflow
+cre workflow simulate ./claim -T staging
+cre workflow simulate ./fair-launch-finalize -T staging
+
+# Deploy
+cre workflow deploy ./claim -T staging
+
+# Set secrets (one-time)
+cre secrets set --namespace humandrop --key WORLD_ID_API_KEY --value "your_key"
 ```
 
-### 2. fair-launch-finalize (Cron Trigger, every 5 min)
-Monitors FairLaunch contracts across all chains, finalizes ended launches.
+## Local Simulation (No CRE CLI Needed)
 
-**Cron:** `*/5 * * * *` (every 5 minutes)
+Two modes for testing without CRE staging URL:
 
-**Response:**
-```json
-{
-  "success": true,
-  "finalized": 3
-}
-```
+### 1. Direct Contract Simulation
 
-**Logic:**
-- Reads `launchCount()` on each chain
-- For each launch: checks `endTime < now && !finalized`
-- Calls `finalize(launchId)` if conditions met
-- Processes World Chain, Arb Sepolia, Base Sepolia in sequence
+Runs all 8 workflows against Tenderly VNet using viem. Reads config from `manna_app/.env.local`.
 
-**Simulate:**
 ```bash
-cre workflow simulate fair-launch-finalize --target staging --workflow-file fair-launch-finalize.workflow.yaml
+bun run workflow/simulate.ts
 ```
 
-### 3. airdrop-create (HTTP Trigger)
-Creates tiered airdrops on HumanDrop contracts across chains.
+Sequence: token-deploy -> token-mint -> airdrop-create -> claim -> fair-launch (create+contribute+finalize) -> portfolio-aggregate -> stats-sync -> airdrop-reclaim
 
-**Request:**
-```json
-{
-  "creator": "0x...",
-  "token": "0x...",
-  "amountOrb": "100000000000000000000",
-  "amountDevice": "50000000000000000000",
-  "maxClaims": "1000",
-  "expiry": "1735689600",
-  "targetChain": "arbitrum-sepolia"
-}
-```
+### 2. API Integration Test
 
-**Response:**
-```json
-{
-  "success": true,
-  "chain": "arbitrum-sepolia",
-  "txHash": "0x...",
-  "message": "Airdrop created — parse logs for airdropId"
-}
-```
+Tests same flows via Next.js API routes (requires dev server).
 
-**Simulate:**
 ```bash
-cre workflow simulate airdrop-create --target staging --workflow-file airdrop-create.workflow.yaml
+# Terminal 1
+cd manna_app && npm run dev
+
+# Terminal 2
+bash workflow/simulate-api.sh
 ```
 
-## Configuration
+## CRE Simulate All
 
-Before simulation/deployment, update config files with deployed contract addresses:
+```bash
+# HTTP triggers (need --http-payload)
+cre workflow simulate ./claim -T staging \
+  --http-payload '{"airdropId":0,"proof":{"merkle_root":"0x0","nullifier_hash":"0x0","proof":"0x0","verification_level":"orb"},"signal":"","action":"claim-airdrop"}'
 
-**token-deploy.config.staging.json**
-```json
-{
-  "tokenFactoryWorldChain": "0x...",
-  "tokenFactoryArbSepolia": "0x...",
-  "tokenFactoryBaseSepolia": "0x...",
-  "authorizedEVMAddress": "0x..."
-}
+cre workflow simulate ./airdrop-create -T staging \
+  --http-payload '{"token":"0x...","amountOrb":"100","amountDevice":"50","maxClaims":1000,"expiryDays":30,"targetChain":"arbitrum-sepolia"}'
+
+cre workflow simulate ./token-deploy -T staging \
+  --http-payload '{"name":"TestToken","symbol":"TT","initialSupply":"1000000","decimals":18,"owner":"0x...","enableMinting":true,"targetChain":"arbitrum-sepolia"}'
+
+cre workflow simulate ./token-mint -T staging \
+  --http-payload '{"tokenAddress":"0x...","to":"0x...","amount":"1000000000000000000000","targetChain":"arbitrum-sepolia"}'
+
+cre workflow simulate ./portfolio-aggregate -T staging \
+  --http-payload '{"wallet":"0x...","tokens":[{"address":"0x...","symbol":"HDT","decimals":18}]}'
+
+# Cron triggers (no payload)
+cre workflow simulate ./fair-launch-finalize -T staging
+cre workflow simulate ./airdrop-reclaim -T staging
+cre workflow simulate ./stats-sync -T staging
 ```
 
-**fair-launch-finalize.config.staging.json**
-```json
-{
-  "fairLaunchWorldChain": "0x...",
-  "fairLaunchArbSepolia": "0x...",
-  "fairLaunchBaseSepolia": "0x...",
-  "schedule": "*/5 * * * *"
-}
+## Deploy All
+
+```bash
+cre workflow deploy ./claim -T staging
+cre workflow deploy ./airdrop-create -T staging
+cre workflow deploy ./token-deploy -T staging
+cre workflow deploy ./token-mint -T staging
+cre workflow deploy ./portfolio-aggregate -T staging
+cre workflow deploy ./fair-launch-finalize -T staging
+cre workflow deploy ./airdrop-reclaim -T staging
+cre workflow deploy ./stats-sync -T staging
 ```
 
-**airdrop-create.config.staging.json**
-```json
-{
-  "humanDropWorldChain": "0x...",
-  "humanDropArbSepolia": "0xCeb84dD00cb5492b70D8c37D96701D36B72E7c70",
-  "humanDropBaseSepolia": "0x...",
-  "authorizedEVMAddress": "0x..."
-}
+## Post-Deploy
+
+Each HTTP workflow returns a webhook URL. Set in `manna_app/.env.local`:
+```bash
+CRE_CLAIM_URL=https://cre.chain.link/workflows/<id>/triggers/http
+CRE_TOKEN_MINT_URL=https://...
+CRE_AIRDROP_CREATE_URL=https://...
+CRE_TOKEN_DEPLOY_URL=https://...
+CRE_PORTFOLIO_URL=https://...
 ```
 
 ## Chain Selectors
@@ -133,66 +122,6 @@ Before simulation/deployment, update config files with deployed contract address
 | Arbitrum Sepolia | `ethereum-testnet-sepolia-arbitrum-1` |
 | Base Sepolia | `ethereum-testnet-sepolia-base-1` |
 
-## Error Handling
-
-All workflows use descriptive error prefixes:
-- `INVALID_CHAIN:` — unsupported targetChain
-- `TOKEN_DEPLOY_FAILED:` — TokenFactory.deployToken tx failed
-- `AIRDROP_CREATE_FAILED:` — HumanDrop.createAirdrop tx failed
-- `FINALIZE_FAILED:` — FairLaunch.finalize tx failed (logged, not thrown)
-
-## Gas Limits
-
-| Operation | Gas Limit |
-|-----------|-----------|
-| deployToken | 1,000,000 |
-| finalize | 500,000 |
-| createAirdrop | 500,000 |
-
-## Deployment
-
-1. **Simulate locally:**
-   ```bash
-   bun install
-   cre workflow simulate <workflow-name> --target staging --workflow-file <workflow>.workflow.yaml
-   ```
-
-2. **Deploy to CRE:**
-   ```bash
-   cre workflow deploy <workflow-name> --target staging --workflow-file <workflow>.workflow.yaml
-   ```
-
-3. **Monitor:**
-   ```bash
-   cre workflow logs <workflow-name> --target staging
-   ```
-
-## Architecture Notes
-
-- **Stateless:** Each trigger fires independent execution, no state persists
-- **BFT Consensus:** All EVMClient write operations use DON consensus (Runtime)
-- **Multi-chain:** Single workflow handles 3 chains via chain selector routing
-- **Gas Safety:** All writes include explicit gas limits
-- **Error Propagation:** HTTP workflows throw errors with prefixes for backend parsing
-- **Cron Resilience:** fair-launch-finalize logs errors per chain, continues processing others
-
-## Files
-
-```
-workflow/
-├── abi.ts                                    # Shared ABI fragments
-├── token-deploy.ts                           # HTTP: deploy tokens
-├── token-deploy.config.staging.json
-├── token-deploy.workflow.yaml
-├── fair-launch-finalize.ts                   # Cron: finalize ended launches
-├── fair-launch-finalize.config.staging.json
-├── fair-launch-finalize.workflow.yaml
-├── airdrop-create.ts                         # HTTP: create airdrops
-├── airdrop-create.config.staging.json
-├── airdrop-create.workflow.yaml
-└── main.ts                                   # HTTP: airdrop claim (existing)
-```
-
 ## Dependencies
 
 ```json
@@ -202,19 +131,10 @@ workflow/
 }
 ```
 
-## Testing
+## Architecture
 
-Run local simulation with test payloads:
-
-**token-deploy:**
-```bash
-echo '{"creator":"0x1234...","name":"Test","symbol":"TST","initialSupply":"1000000000000000000000000","decimals":18,"enableMinting":true,"targetChain":"arbitrum-sepolia"}' | cre workflow simulate token-deploy --target staging --stdin
-```
-
-**airdrop-create:**
-```bash
-echo '{"creator":"0x1234...","token":"0xABC...","amountOrb":"100000000000000000000","amountDevice":"50000000000000000000","maxClaims":"1000","expiry":"1735689600","targetChain":"arbitrum-sepolia"}' | cre workflow simulate airdrop-create --target staging --stdin
-```
-
-**fair-launch-finalize:**
-Cron triggers automatically — no manual input needed.
+- **Stateless** — each trigger fires independent execution
+- **BFT Consensus** — all writes use DON consensus via `Runtime`
+- **Multi-chain** — single workflow handles 3 chains via chain selector routing
+- **Confidential HTTP** — World ID API key stored in VaultDON enclave
+- **Gas limits** — explicit per operation (500k-1M)
